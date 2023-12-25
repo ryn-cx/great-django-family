@@ -8,6 +8,8 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
+paved-path = {git = "https://github.com/ryn-cx/paved-path.git"}
+django = "^5.0"
 
 
 [tool.poetry.group.dev.dependencies]
