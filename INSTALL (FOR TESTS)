@@ -1,0 +1,4 @@
+source .venv/bin/virtualenvwrapper.sh
+# Needed to be able to import functions into Django
+add2virtualenv .
+add2virtualenv test_project

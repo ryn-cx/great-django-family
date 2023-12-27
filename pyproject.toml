@@ -18,6 +18,7 @@ pre-commit = "^3.6.0"
 pylint = "^3.0.3"
 pytest = "^7.4.3"
 pytest-django = "^4.7.0"
+virtualenvwrapper = "^4.8.4"
 
 [build-system]
 requires = ["poetry-core"]
@@ -39,4 +40,4 @@ ignore = ["ANN101", "ANN102", "N804"]
 # INP001 - implicit-namespace-package - Tests are not packages and should not have __init__.py files
 
 [tool.pytest.ini_options]
-DJANGO_SETTINGS_MODULE = "tests.test_project.test_project.settings"
+DJANGO_SETTINGS_MODULE = "test_project.test_project.settings"
