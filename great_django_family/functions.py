@@ -27,7 +27,7 @@ def auto_unique(*fields: str) -> models.UniqueConstraint:
     # First find the frame that contains the Meta class, the next frame will be the model
     for i, frame_info in enumerate(inspect.stack()):
         if frame_info.function == "Meta":
-            model_name = inspect.stack()[i + 1]
+            model_name = inspect.stack()[i + 1].function
             return models.UniqueConstraint(fields=fields, name=f"{model_name}_{','.join(fields)}")
 
     msg = "auto_unique failed because the Meta class was not found, auto_unique may have been called incorrectly."
