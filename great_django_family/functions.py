@@ -18,24 +18,17 @@ def auto_unique(*fields: str) -> models.UniqueConstraint:
     have this name automatically generated to decrease the possibility of accidently making two constraints with the
     same name.
 
-    Args:
-    ----
-        *fields: The names of the fields that should be unique together.
-
-    Returns:
-    -------
-        A `UniqueConstraint` instance that can be used to enforce uniqueness on the specified fields.
-
-    Raises:
+    Raises
     ------
         `StackInspectionError`: If the function is not called from within the `Meta` class of a model.
     """
     # This function may not be reliable because it relies on undocumented behavior of the inspect module
     # See: https://stackoverflow.com/questions/900392/getting-the-caller-function-name-inside-another-function-in-python
-    # To help ensure the function fails gracefully check if the Meta class is the caller because it should always be
-    # first caller followed by the actual model class
-    if inspect.stack()[1].function != "Meta":
-        msg = "auto_unique failed because the stack was invalid, it may have been called incorrectly."
-        raise StackInspectionError(msg)
+    # First find the frame that contains the Meta class, the next frame will be the model
+    for i, frame_info in enumerate(inspect.stack()):
+        if frame_info.function == "Meta":
+            model_name = inspect.stack()[i + 1]
+            return models.UniqueConstraint(fields=fields, name=f"{model_name}_{','.join(fields)}")
 
-    return models.UniqueConstraint(fields=fields, name=f"{inspect.stack()[2].function}_{'_'.join(fields)}")
+    msg = "auto_unique failed because the Meta class was not found, auto_unique may have been called incorrectly."
+    raise StackInspectionError(msg)
