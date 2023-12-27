@@ -9,16 +9,15 @@ from paved_path import PavedPath
 
 
 class ModelWithIdAndTimestamp(models.Model):
-    """Model that includes an auto incrmented id, info_timestamp, and info_modified_timestamp and some functions."""
+    """Model tempalte with an info_timestamp, info_modified_timestamp and some functions."""
 
     info_timestamp = models.DateTimeField()
-    """Timestamp representing when the information in the database was last pulled from an external source"""
+    """Timestamp representing when the information was obtained."""
 
     # If I modify information by hand I do not want the timestamp to auto-update
     # Therefore automatically updating timestamps is not appropriate and it must be updated manually
     info_modified_timestamp = models.DateTimeField()
-    """Timestamp representing when the information in the database was last modified excluding modifications that are
-    done by hand"""
+    """Timestamp representing when the information in the database was last modified."""
 
     class Meta:
         """Meta information for ModelWithIdAndTimestamp."""

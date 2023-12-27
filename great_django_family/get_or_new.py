@@ -14,24 +14,25 @@ class GetOrNew(models.Model):
     """A mixin that adds a get_or_new method to a model."""
 
     class Meta:
-        """Meta information for GetOrNew."""
+        """Meta information for the GetOrNew."""
 
-        abstract = True
+        abstract = True  # Required to be able to subclass models.Model
 
     def get_or_new(self, **values: str | int | models.Model) -> tuple[Self, bool]:
-        """Inspired by get_or_create, but with some differences.
+        """Get an object if it exist, otherwise create it.
 
-        get_or_create will immediatly attempt to create an object even if it doesn't have all the required information,
-        get_or_new will not save the object, and instead must be saved manually when all of the information has been
-        added to the object
+        This is similar to get_or_create but with some small differences. get_or_create will immediatly attempt to
+        create and save an object even if it doesn't have all the required information for the object to be saved,
+        get_or_new will not save the object on initialization, and instead must be saved manually when all of the
+        information has been added to the object.
 
         This is useful for when creating a new object but not all of the information is easily avaialble at the time of
-        object initialization
+        object initialization.
 
         Args:
         ----
         values: The values to use to get or create the object, the keys are the field names and the values are the
-        values to use for the fields
+        values to use for the fields.
 
         Returns:
         -------
