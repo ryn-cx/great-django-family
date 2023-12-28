@@ -5,7 +5,6 @@ from __future__ import annotations
 from datetime import datetime
 
 from django.db import models
-from paved_path import PavedPath
 
 
 class ModelWithTimestamps(models.Model):
@@ -53,18 +52,14 @@ class ModelWithTimestamps(models.Model):
         """Check if the information in the database is outdated."""
         return not self.is_up_to_date(minimum_info_timestamp, minimum_modified_timestamp)
 
-    def add_timestamps_and_save(self, info_timestamp: PavedPath | datetime) -> None:
+    def add_timestamps_and_save(self, info_timestamp: datetime) -> None:
         """Add timestamps to the model and save it."""
         self.add_timestamps(info_timestamp)
         self.save()
 
-    def add_timestamps(self, info_timestamp: PavedPath | datetime) -> None:
+    def add_timestamps(self, info_timestamp: datetime) -> None:
         """Add timestamps to the model."""
-        if isinstance(info_timestamp, PavedPath):
-            self.info_timestamp = info_timestamp.aware_mtime()
-        else:
-            self.info_timestamp = info_timestamp.astimezone()
-
+        self.info_timestamp = info_timestamp
         self.info_modified_timestamp = datetime.now().astimezone()
 
 
