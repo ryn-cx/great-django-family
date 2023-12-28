@@ -19,6 +19,7 @@ pylint = "^3.0.3"
 pytest = "^7.4.3"
 pytest-django = "^4.7.0"
 virtualenvwrapper = "^4.8.4"
+django-types = "^0.19.1"
 
 [build-system]
 requires = ["poetry-core"]
