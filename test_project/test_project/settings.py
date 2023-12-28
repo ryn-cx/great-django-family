@@ -29,15 +29,19 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
-INSTALLED_APPS = [
+installed_apps = [
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "test_project.test_app",
 ]
+
+# Tests and migrations run from different paths, automatically get the correct path
+module_parts = __name__.split(".")
+app_name = ".".join(module_parts[1:-1]) + ".test_app" if len(module_parts) > 2 else "test_app"
+INSTALLED_APPS = [*installed_apps, app_name]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
