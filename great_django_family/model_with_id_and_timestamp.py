@@ -19,7 +19,7 @@ class ModelWithIdAndTimestamp(models.Model):
     info_modified_timestamp = models.DateTimeField()
     """Timestamp representing when the information in the database was last modified."""
 
-    class Meta:
+    class Meta:  # type: ignore  # noqa: PGH003 - Meta has false positives
         """Meta information for ModelWithIdAndTimestamp."""
 
         abstract = True  # Required to be able to subclass models.Model
@@ -66,3 +66,14 @@ class ModelWithIdAndTimestamp(models.Model):
             self.info_timestamp = info_timestamp.astimezone()
 
         self.info_modified_timestamp = datetime.now().astimezone()
+
+
+class ModelWithId(models.Model):
+    """Model tempalte with the id explicitly defined for type checking."""
+
+    id: models.AutoField  # noqa: A003 - This value exists no matter what, this just documents it
+
+    class Meta:  # type: ignore  # noqa: PGH003 - Meta has false positives
+        """Meta information for ModelWithIdAndTimestamp."""
+
+        abstract = True

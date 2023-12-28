@@ -1,24 +1,17 @@
-"""A mixin that adds a get_or_new method to a model."""
-
+"""GetOrNewModel and supporting classes."""
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import ClassVar, Self, TypeVar
 
 from django.db import models
 
-if TYPE_CHECKING:
-    from typing import Self
+_T = TypeVar("_T", bound=models.Model)
 
 
-class GetOrNew(models.Model):
-    """A mixin that adds a get_or_new method to a model."""
+class _GetOrNewManager(models.Manager[_T]):
+    """Temp docstring."""
 
-    class Meta:
-        """Meta information for the GetOrNew."""
-
-        abstract = True  # Required to be able to subclass models.Model
-
-    def get_or_new(self, **values: str | int | models.Model) -> tuple[Self, bool]:
+    def get_or_new(self, **values: str | int | models.Model) -> tuple[_T, bool]:
         """Get an object if it exist, otherwise create it.
 
         This is similar to get_or_create but with some small differences. get_or_create will immediatly attempt to
@@ -40,6 +33,20 @@ class GetOrNew(models.Model):
         created the boolean will be True, if the object was fetched the boolean will be False
         """
         try:
-            return (self.__class__.objects.get(**values), False)
-        except self.DoesNotExist:
-            return (self.__class__(**values), True)
+            return (self.get(**values), False)
+        except self.model.DoesNotExist:
+            return (self.model(**values), True)
+
+
+class ModelWithGetOrNew(models.Model):
+    """Model template with a get_or_new function in the model manager."""
+
+    # The types here don't exactly match up, but this implementation is as close as possible to Django's official
+    # example on how to implement something similar. See: https://docs.djangoproject.com/en/5.0/topics/db/managers/
+    # Also, this is labeled as a ClassVar because the original implementation has a type hint for ClassVar.
+    objects: ClassVar[_GetOrNewManager[Self]] = _GetOrNewManager()
+
+    class Meta:  # type: ignore  # noqa: PGH003 - Meta has false positives
+        """Meta information for the GetOrNewModel."""
+
+        abstract = True
