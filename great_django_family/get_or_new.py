@@ -49,4 +49,4 @@ class ModelWithGetOrNew(models.Model):
     class Meta:  # type: ignore  # noqa: PGH003 - Meta has false positives
         """Meta information for the GetOrNewModel."""
 
-        abstract = True
+        abstract = True  # Required to be able to subclass models.Model

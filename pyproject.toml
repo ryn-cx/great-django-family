@@ -27,10 +27,13 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.ruff]
 line-length = 120
+# Ignore Django migration files for formatting because they are auto-generated
+extend-exclude = ["migrations"]
 
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = ["ANN101", "ANN102", "N804"]
+
 # ANN101 - missing-type-self - self doesn't need type hints because the type is known implicitly
 # ANN102 - missing-type-cls - cls doesn't need type hints because the type is known implicitly
 # N804 - non-pep604-annotation - Sometimes has false positives, and Pylance is more accurate

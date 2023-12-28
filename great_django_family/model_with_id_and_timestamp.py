@@ -8,7 +8,7 @@ from django.db import models
 from paved_path import PavedPath
 
 
-class ModelWithIdAndTimestamp(models.Model):
+class ModelWithTimestamps(models.Model):
     """Model tempalte with an info_timestamp, info_modified_timestamp and some functions."""
 
     info_timestamp = models.DateTimeField()
@@ -76,4 +76,4 @@ class ModelWithId(models.Model):
     class Meta:  # type: ignore  # noqa: PGH003 - Meta has false positives
         """Meta information for ModelWithIdAndTimestamp."""
 
-        abstract = True
+        abstract = True  # Required to be able to subclass models.Model

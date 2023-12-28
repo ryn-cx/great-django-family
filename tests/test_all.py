@@ -1,5 +1,7 @@
+"""Test great-django-family."""
 from __future__ import annotations
 
+import datetime
 from io import StringIO
 
 import pytest
@@ -7,7 +9,11 @@ from django.core.management import call_command
 from django.db import models
 
 from great_django_family import auto_unique
-from test_project.test_app.models import ImplementedGetOrNew
+from test_project.test_app.models import ImplementedGetOrNew, ImplementedModelWithTimestamps
+
+CURRENT_TIMESTAMP = datetime.datetime.now().astimezone()
+PAST_TIMESTAMP = CURRENT_TIMESTAMP - datetime.timedelta(days=1)
+FUTURE_TIMESTAMP = CURRENT_TIMESTAMP + datetime.timedelta(days=1)
 
 
 # Based on code from: https://stackoverflow.com/a/73588607
@@ -37,10 +43,10 @@ class TestAutoUnique:
                 )
 
 
-class TestModels:
-    """Test the Models."""
+@pytest.mark.django_db()
+class TestGetOrNew:
+    """Test GetOrNew."""
 
-    @pytest.mark.django_db()
     def test_get_or_new(self) -> None:
         """Test that get_or_new works."""
         # Test for an object that does not exist
@@ -56,3 +62,76 @@ class TestModels:
         obj2, missing = ImplementedGetOrNew.objects.get_or_new(name="test")
         assert missing is False
         assert obj2.id == obj.id
+
+
+@pytest.mark.django_db()
+class TestModelWithTimestamps:
+    """Test ModelWithTimestamps."""
+
+    def setup_method(self) -> None:
+        """Configure the test."""
+        self.obj = ImplementedModelWithTimestamps(name="test")
+        self.timestamp = datetime.datetime.now().astimezone()
+        self.past_timestamp = self.timestamp - datetime.timedelta(days=1)
+        self.future_timestamp = self.timestamp + datetime.timedelta(days=1)
+
+    @pytest.mark.parametrize(
+        ("info_timestamp", "modified_timestamp"),
+        [
+            (None, None),
+            (None, PAST_TIMESTAMP),
+            (None, CURRENT_TIMESTAMP),
+            (None, FUTURE_TIMESTAMP),
+            (CURRENT_TIMESTAMP, None),
+            (CURRENT_TIMESTAMP, PAST_TIMESTAMP),
+            (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+            (CURRENT_TIMESTAMP, FUTURE_TIMESTAMP),
+            (PAST_TIMESTAMP, None),
+            (PAST_TIMESTAMP, PAST_TIMESTAMP),
+            (PAST_TIMESTAMP, CURRENT_TIMESTAMP),
+            (PAST_TIMESTAMP, FUTURE_TIMESTAMP),
+            (FUTURE_TIMESTAMP, None),
+            (FUTURE_TIMESTAMP, PAST_TIMESTAMP),
+            (FUTURE_TIMESTAMP, CURRENT_TIMESTAMP),
+            (FUTURE_TIMESTAMP, FUTURE_TIMESTAMP),
+        ],
+    )
+    def test_no_entry(self, info_timestamp: datetime.datetime | None, modified_timestamp: datetime.datetime) -> None:
+        """Test that is_up_to_date works when the object has no entry in the database."""
+        assert self.obj.is_up_to_date(info_timestamp, modified_timestamp) is False
+        assert self.obj.is_outdated(info_timestamp, modified_timestamp) is True
+
+    @pytest.mark.parametrize(
+        ("info_timestamp", "modified_timestamp"),
+        [
+            (None, None),
+            (None, PAST_TIMESTAMP),
+            (None, CURRENT_TIMESTAMP),
+            (None, FUTURE_TIMESTAMP),
+            (CURRENT_TIMESTAMP, None),
+            (CURRENT_TIMESTAMP, PAST_TIMESTAMP),
+            (CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+            (CURRENT_TIMESTAMP, FUTURE_TIMESTAMP),
+            (PAST_TIMESTAMP, None),
+            (PAST_TIMESTAMP, PAST_TIMESTAMP),
+            (PAST_TIMESTAMP, CURRENT_TIMESTAMP),
+            (PAST_TIMESTAMP, FUTURE_TIMESTAMP),
+            (FUTURE_TIMESTAMP, None),
+            (FUTURE_TIMESTAMP, PAST_TIMESTAMP),
+            (FUTURE_TIMESTAMP, CURRENT_TIMESTAMP),
+            (FUTURE_TIMESTAMP, FUTURE_TIMESTAMP),
+        ],
+    )
+    def test_existing_entry(
+        self,
+        info_timestamp: datetime.datetime | None,
+        modified_timestamp: datetime.datetime,
+    ) -> None:
+        """Test that is_up_to_date works when the object has an entry in the database."""
+        self.obj.info_timestamp = CURRENT_TIMESTAMP
+        self.obj.info_modified_timestamp = CURRENT_TIMESTAMP
+        self.obj.save()
+
+        outdated = FUTURE_TIMESTAMP in (info_timestamp, modified_timestamp)
+        assert self.obj.is_up_to_date(info_timestamp, modified_timestamp) is not outdated
+        assert self.obj.is_outdated(info_timestamp, modified_timestamp) is outdated
