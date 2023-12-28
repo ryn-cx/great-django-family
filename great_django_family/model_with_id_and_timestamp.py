@@ -8,7 +8,7 @@ from django.db import models
 
 
 class ModelWithTimestamps(models.Model):
-    """Model tempalte with an info_timestamp, info_modified_timestamp and some functions."""
+    """Abstract model with an info_timestamp, info_modified_timestamp and timestamp related functions."""
 
     info_timestamp = models.DateTimeField()
     """Timestamp representing when the information was obtained."""
@@ -64,7 +64,7 @@ class ModelWithTimestamps(models.Model):
 
 
 class ModelWithId(models.Model):
-    """Model tempalte with the id explicitly defined for type checking."""
+    """Abstract Model with the id explicitly defined for type checking."""
 
     id: models.AutoField  # noqa: A003 - This value exists no matter what, this just documents it
 
