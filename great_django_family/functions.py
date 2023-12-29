@@ -1,4 +1,4 @@
-"""Useful functions for creating Django models."""
+"""Functions for Django models."""
 
 from __future__ import annotations
 
