@@ -119,3 +119,26 @@ class ModelWithGetOrNew(models.Model):
         """Meta information for the GetOrNewModel."""
 
         abstract = True  # Required to be able to subclass models.Model
+
+
+# THis SHOULD be redundant, but for some reason if you try to create ModelWithIdAndTimestampAndGetOrNew all in a single
+# class it will have a type error so this itermidiate class is required.
+class ModelWithIdAndTimestamp(ModelWithId, ModelWithTimestamps):
+    """Abstract model with an id and timestamps."""
+
+    class Meta:  # type: ignore  # noqa: PGH003 - Meta has false positives
+        """Meta information for ModelWithIdAndTimestamp."""
+
+        abstract = True  # Required to be able to subclass models.Model
+
+
+# THis SHOULD be redundant, but for some reason if you try to create ModelWithIdAndTimestampAndGetOrNew all in a single
+# class it will have a type error so make this class in advance to make it easier to use all of the abstract classes at
+# once.
+class ModelWithIdTimestampAndGetOrNew(ModelWithIdAndTimestamp, ModelWithGetOrNew):
+    """Abstract model with an id, timestamps and a get_or_new function."""
+
+    class Meta:  # type: ignore  # noqa: PGH003 - Meta has false positives
+        """Meta information for ModelWithIdAndTimestampAndGetOrNew."""
+
+        abstract = True  # Required to be able to subclass models.Model
