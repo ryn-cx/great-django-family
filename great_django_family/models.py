@@ -1,4 +1,5 @@
 """Abstract models for Django."""
+
 from __future__ import annotations
 
 from datetime import datetime
@@ -10,11 +11,9 @@ from django.db import models
 class ModelWithId(models.Model):
     """Abstract Model with the id explicitly defined for type checking."""
 
-    id: models.AutoField  # noqa: A003 - This value exists no matter what, this just documents it
+    id: models.AutoField
 
-    class Meta:  # type: ignore  # noqa: PGH003 - Meta has false positives
-        """Meta information for ModelWithIdAndTimestamp."""
-
+    class Meta:  # type: ignore[reportIncompatibleVariableOverride] # noqa: D106 - Meta has false positives
         abstract = True  # Required to be able to subclass models.Model
 
 
@@ -29,9 +28,14 @@ class ModelWithTimestamps(models.Model):
     info_modified_timestamp = models.DateTimeField()
     """Timestamp representing when the information in the database was last modified."""
 
-    class Meta:  # type: ignore  # noqa: PGH003 - Meta has false positives
-        """Meta information for ModelWithIdAndTimestamp."""
+    class Meta:  # type: ignore[reportIncompatibleVariableOverride] # noqa: D106 - Meta has false positives
+        abstract = True  # Required to be able to subclass models.Model
 
+
+class ModelWithTimestampsFunctions(ModelWithTimestamps):
+    """Abstract model with an info_timestamp, info_modified_timestamp and timestamp related functions."""
+
+    class Meta:  # type: ignore[reportIncompatibleVariableOverride] # noqa: D106 - Meta has false positives
         abstract = True  # Required to be able to subclass models.Model
 
     def is_up_to_date(
@@ -74,12 +78,20 @@ class ModelWithTimestamps(models.Model):
         self.info_modified_timestamp = datetime.now().astimezone()
 
 
+class ModelWithTimestampsAndUpdateAt(ModelWithTimestamps):
+    """Abstract model with an info_timestamp, info_modified_timestamp and timestamp related functions."""
+
+    updated_at = models.DateTimeField()
+    """Timestamp representing when the information was last updated."""
+
+    class Meta:  # type: ignore[reportIncompatibleVariableOverride] # noqa: D106 - Meta has false positives
+        abstract = True  # Required to be able to subclass models.Model
+
+
 _T = TypeVar("_T", bound=models.Model)
 
 
 class _GetOrNewManager(models.Manager[_T]):
-    """Temp docstring."""
-
     def get_or_new(self, **values: str | int | models.Model) -> tuple[_T, bool]:
         """Get an object if it exist, otherwise create it.
 
@@ -100,6 +112,7 @@ class _GetOrNewManager(models.Manager[_T]):
         -------
         A tuple containing the object and a boolean representing if the object was created or not, if the object was
         created the boolean will be True, if the object was fetched the boolean will be False
+
         """
         try:
             return (self.get(**values), False)
@@ -115,30 +128,26 @@ class ModelWithGetOrNew(models.Model):
     # Also, this is labeled as a ClassVar because the original implementation has a type hint for ClassVar.
     objects: ClassVar[_GetOrNewManager[Self]] = _GetOrNewManager()
 
-    class Meta:  # type: ignore  # noqa: PGH003 - Meta has false positives
-        """Meta information for the GetOrNewModel."""
-
+    class Meta:  # type: ignore[reportIncompatibleVariableOverride] # noqa: D106 - Meta has false positives
         abstract = True  # Required to be able to subclass models.Model
 
 
+# ! DEPRECATED FOR FUTURE USE ONLY HERE TEMPORARILY
 # THis SHOULD be redundant, but for some reason if you try to create ModelWithIdAndTimestampAndGetOrNew all in a single
 # class it will have a type error so this itermidiate class is required.
 class ModelWithIdAndTimestamp(ModelWithId, ModelWithTimestamps):
     """Abstract model with an id and timestamps."""
 
-    class Meta:  # type: ignore  # noqa: PGH003 - Meta has false positives
-        """Meta information for ModelWithIdAndTimestamp."""
-
+    class Meta:  # type: ignore[reportIncompatibleVariableOverride] # noqa: D106 - Meta has false positives
         abstract = True  # Required to be able to subclass models.Model
 
 
-# THis SHOULD be redundant, but for some reason if you try to create ModelWithIdAndTimestampAndGetOrNew all in a single
+# ! DEPRECATED FOR FUTURE USE ONLY HERE TEMPORARILY
+# This SHOULD be redundant, but for some reason if you try to create ModelWithIdAndTimestampAndGetOrNew all in a single
 # class it will have a type error so make this class in advance to make it easier to use all of the abstract classes at
 # once.
 class ModelWithIdTimestampAndGetOrNew(ModelWithIdAndTimestamp, ModelWithGetOrNew):
     """Abstract model with an id, timestamps and a get_or_new function."""
 
-    class Meta:  # type: ignore  # noqa: PGH003 - Meta has false positives
-        """Meta information for ModelWithIdAndTimestampAndGetOrNew."""
-
+    class Meta:  # type: ignore[reportIncompatibleVariableOverride] # noqa: D106 - Meta has false positives
         abstract = True  # Required to be able to subclass models.Model
